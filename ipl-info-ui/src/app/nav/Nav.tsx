@@ -5,7 +5,6 @@ import { useRouter, usePathname } from "next/navigation";
 const Nav = () => {
     const router = useRouter();
     const pathName = usePathname();
-    console.log(pathName);
     const navItems = [
         {
             label : 'Home',

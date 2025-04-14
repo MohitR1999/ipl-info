@@ -1,0 +1,38 @@
+name: ipl-info
+services:
+  backend:
+    build: ./backend
+    env_file: "./backend/.env"
+    ports:
+      - "5000:5000"
+      - "9229:9229"
+    command: npm run dev
+    develop:
+      watch:
+        - action : rebuild
+          path : ./backend/package.json
+
+        - action : sync+restart
+          path : ./backend
+          target : /usr/src/app
+          exec : 
+            command : npm run dev
+
+  ui:
+    build:
+      context: ./ipl-info-ui
+      dockerfile: Dockerfile
+      target: builder
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    develop:
+     watch:
+       - action : rebuild
+         path : ./ipl-info-ui/package.json
+
+       - action : sync
+         path : ./ipl-info-ui
+         target : /usr/src/app
+    depends_on:
+      - backend

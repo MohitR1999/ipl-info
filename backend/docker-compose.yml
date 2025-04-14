@@ -1,0 +1,17 @@
+services:
+  backend:
+    build: .
+    ports:
+      - "5000:5000"
+      - "9229:9229"
+    command: npm run dev
+    develop:
+      watch:
+        - action : rebuild
+          path : ./package.json
+
+        - action : sync+restart
+          path : .
+          target : /usr/src/app
+          exec : 
+            command : npm run dev

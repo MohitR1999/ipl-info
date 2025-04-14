@@ -1,19 +1,50 @@
 'use client'
 import { Navbar, NavbarCollapse, NavbarLink, NavbarToggle } from "flowbite-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const Nav = () => {
     const router = useRouter();
+    const pathName = usePathname();
+    console.log(pathName);
+    const navItems = [
+        {
+            label : 'Home',
+            href : '/'
+        },
+
+        {
+            label : 'Points table',
+            href : '/points'
+        },
+
+        {
+            label : 'Match Schedule',
+            href : '/schedule'
+        }
+    ]
   
     return (
     <Navbar fluid rounded>
       <NavbarToggle />
       <NavbarCollapse>
-        <NavbarLink href="#" onClick={() => router.push("/")}>
-          Home
-        </NavbarLink>
-        <NavbarLink href="#" onClick={() => router.push("/points")}>Points table</NavbarLink>
-        <NavbarLink href="#" onClick={() => router.push("/schedule")}>Match Schedule</NavbarLink>
+        {
+            navItems.map(item => {
+                const isActive = pathName === item.href;
+                
+                return (
+                <NavbarLink 
+                    key={item.href}
+                    href="#"
+                    active={isActive}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        router.push(item.href);
+                    }}
+                >
+                    {item.label}
+                </NavbarLink>)
+            })
+        }
       </NavbarCollapse>
     </Navbar>
   );

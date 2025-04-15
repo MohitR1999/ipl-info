@@ -23,45 +23,14 @@ function MatchSchedule(data) {
 
 function ongroupstandings(data) {
     pointsTable = data;
+    pointsTable['points'].forEach(element => {
+        element['Performance'] = element['Performance'].split("").reverse().join("");
+    });
 }
 
 function onScoring(data) {
     liveScores = data;
 }
-
-// Fetch fixtures data
-// router.get('/upcoming-matches', async (req, res) => {
-//     try {
-//         const response = await axios.get(`${IPL_FIXTURES_URL}`);
-//         eval(response.data);
-//         res.status(200).json({
-//             data : matchSchedule['Matchsummary']
-//         });
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).json({
-//             message: 'Internal server error',
-//         });
-//     }
-// });
-
-// // Fetch standings data
-// router.get('/standings', (req, res) => {
-//     const data = getData(MSG_TYPES.GET_STANDINGS);
-//     res.status(200).json({
-//         message: 'Standings data',
-//         data: data
-//     });
-// });
-
-// // Fetch scores data
-// router.get('/scores', (req, res) => {
-//     const data = getData(MSG_TYPES.GET_SCORES);
-//     res.status(200).json({
-//         message: 'Scores data',
-//         data: data
-//     });
-// });
 
 // Route for live match.
 // If there is a match ongoing, return commentary info

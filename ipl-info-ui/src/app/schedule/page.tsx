@@ -14,7 +14,7 @@ import {
 } from "flowbite-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { HiArrowNarrowRight, HiCalendar, HiLocationMarker } from "react-icons/hi";
+import { HiArrowNarrowRight, HiCalendar, HiLocationMarker, HiTicket } from "react-icons/hi";
 
 interface ScheduleItemProps {
     date: string,
@@ -22,7 +22,7 @@ interface ScheduleItemProps {
     groundName: string,
     homeTeamLogo: string,
     awayTeamLogo: string,
-    time : string
+    time: string
 }
 
 const ScheduleItem = ({
@@ -35,7 +35,7 @@ const ScheduleItem = ({
 
 }: ScheduleItemProps) => {
     const size = 100;
-    
+
     return (
         <TimelineItem>
             <TimelinePoint icon={HiCalendar} />
@@ -44,10 +44,14 @@ const ScheduleItem = ({
                 <TimelineTitle>{matchName}</TimelineTitle>
                 <TimelineBody>
                     <div className="flex mt-1 items-center">
-                        <HiLocationMarker className="mr-1 h-5 w-5"/> 
+                        <HiLocationMarker className="mr-1 h-5 w-5" />
                         {groundName}
                     </div>
                 </TimelineBody>
+                <Button color="cyan">
+                    Buy Tickets
+                    <HiTicket className="ml-2 h-3 w-3" />
+                </Button>
             </TimelineContent>
         </TimelineItem>
     );

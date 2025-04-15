@@ -6,16 +6,18 @@ import { useEffect, useState } from "react";
 
 interface TableItemProps {
     name: string;
-    position : string;
-    image : string;
-    points : string;
+    position: string;
+    image: string;
+    points: string;
+    performance: string;
 }
 
 const TableItem = ({
     name,
     position,
     image,
-    points
+    points,
+    performance
 }: TableItemProps) => {
     return (
         <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
@@ -23,18 +25,28 @@ const TableItem = ({
                 {position}
             </TableCell>
             <TableCell>
-                <div className="flex">
-                    <Image
-                        src={image}
-                        width={30}
-                        height={30}
-                        className="mr-4"
-                        alt="Team logo" />
-                    {name}
-                </div>
+                <Image
+                    src={image}
+                    width={32}
+                    height={32}
+                    alt="Team logo" />
+            </TableCell>
+            <TableCell>
+                {name}
             </TableCell>
             <TableCell>
                 {points}
+            </TableCell>
+            <TableCell>
+                <div className="flex justify-center items-center">
+                    {performance.split(",").map((s, i) => {
+                        return (
+                            <div key={i}>
+                                {s == 'L' ? '🇱' : '🇼'}
+                            </div>
+                        )
+                    })}
+                </div>
             </TableCell>
         </TableRow>
     );
@@ -79,7 +91,9 @@ const Points = () => {
                                     <TableRow>
                                         <TableHeadCell>Position</TableHeadCell>
                                         <TableHeadCell>Team</TableHeadCell>
+                                        <TableHeadCell>Name</TableHeadCell>
                                         <TableHeadCell>Points</TableHeadCell>
+                                        <TableHeadCell>Performance</TableHeadCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody className="divide-y">
@@ -90,6 +104,7 @@ const Points = () => {
                                             position={item.OrderNo}
                                             image={item.TeamLogo}
                                             points={item.Points}
+                                            performance={item.Performance}
                                         />
                                     })}
                                 </TableBody>

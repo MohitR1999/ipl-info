@@ -1,6 +1,6 @@
 'use client'
 
-import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from "flowbite-react";
+import { Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from "flowbite-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -80,7 +80,7 @@ const Points = () => {
             {
                 loading ?
                     <div>
-                        Loading...
+                        <Spinner size="xl" />
                     </div>
                     :
                     <div className="flex flex-col justify-center items-center">

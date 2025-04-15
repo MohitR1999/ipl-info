@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
       new URL('https://feeds-100mb.s3-ap-southeast-1.amazonaws.com/teamLogos/sSNjJEkBAx1742900310RR---New-Logo.png'),
       new URL('https://scores.iplt20.com/ipl/teamlogos/SRH.png'),
       new URL('https://scores.iplt20.com/ipl/teamlogos/CSK.png'),
+      new URL('https://scores.iplt20.com/ipl/teamlogos/**'),
       
     ],
   },

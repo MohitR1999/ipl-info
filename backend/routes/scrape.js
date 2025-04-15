@@ -18,7 +18,12 @@ router.get('/', (req, res) => {
 });
 
 function MatchSchedule(data) {
-    matchSchedule = data;
+    matchSchedule = data['Matchsummary'].reduce((accumulator, current) => {
+        if (current['MatchStatus'] == 'Live' || current['MatchStatus'] == 'UpComing') {
+            accumulator.push(current);
+        }
+        return accumulator;
+    }, []);
 }
 
 function ongroupstandings(data) {

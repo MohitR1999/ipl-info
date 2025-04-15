@@ -23,9 +23,15 @@ const TableItem = ({
                 {position}
             </TableCell>
             <TableCell>
-                <>
+                <div className="flex">
+                    <Image
+                        src={image}
+                        width={30}
+                        height={30}
+                        className="mr-4"
+                        alt="Team logo" />
                     {name}
-                </>
+                </div>
             </TableCell>
             <TableCell>
                 {points}

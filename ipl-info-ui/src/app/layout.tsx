@@ -1,6 +1,4 @@
 'use client'
-import type { Metadata } from "next";
-import { ThemeModeScript } from 'flowbite-react';
 import Nav from "./nav/Nav";
 import "./globals.css";
 

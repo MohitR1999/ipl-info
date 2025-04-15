@@ -41,8 +41,8 @@ const TableItem = ({
                 <div className="flex justify-center items-center">
                     {performance.split(",").map((s, i) => {
                         return (
-                            <div key={i}>
-                                {s == 'L' ? '🇱' : '🇼'}
+                            <div key={i} className="ml-1">
+                                {s == 'L' ? 'L' : 'W'}
                             </div>
                         )
                     })}

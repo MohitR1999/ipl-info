@@ -85,7 +85,16 @@ function onScoring(data) {
 router.get('/match', validateLiveMatchId, async (req, res) => {
     try {
         if (!currentLiveMatchId) {
-            return res.status(404).json({ error: "No live match found" });
+            // No live match found, return the upcoming match info
+            const upcomingMatch = matchSchedule.find(m => m['MatchStatus'] === 'UpComing');
+            if (upcomingMatch) {
+                return res.status(200).json({
+                    message: "No live match found. Pls check the upcoming match details",
+                    data: upcomingMatch
+                });
+            } else {
+                return res.status(404).json({ error: "No live or upcoming match found" });
+            }
         }
         const liveMatchResponse = await axios.get(`${LIVE_SCORES_URL}/${currentLiveMatchId}-Innings1.js`);
         eval(liveMatchResponse.data);

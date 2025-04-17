@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const { MSG_TYPES } = require('../utils/messageTypes');
+const { Server } = require('socket.io');
 
 const MATCH_SCHEDULE_URL = `https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds/203-matchschedule.js`
 const LIVE_SCORES_URL = `https://ipl-stats-sports-mechanic.s3.ap-south-1.amazonaws.com/ipl/feeds`;
@@ -12,33 +13,36 @@ let pointsTable = {};
 let liveScores = {};
 let currentLiveMatchId = "";
 
-// Middleware to validate and refresh currentLiveMatchId
-async function validateLiveMatchId(req, res, next) {
-    try {
-        if (!currentLiveMatchId || !isMatchStillLive(currentLiveMatchId)) {
-            const response = await axios.get(`${MATCH_SCHEDULE_URL}`);
-            eval(response.data);
-            const liveMatch = matchSchedule.find(m => m['MatchStatus'] === 'Live');
-            currentLiveMatchId = liveMatch ? liveMatch['MatchID'] : null;
-        }
-        next();
-    } catch (error) {
-        console.error("Error refreshing live match ID:", error);
-        res.status(500).json({ error: "Failed to refresh live match ID" });
-    }
-}
+const REFRESH_INTERVAL_SECONDS = 10;
+const MILLISECONDS = 1000;
 
-// Helper function to check if the current match is still live
-function isMatchStillLive(matchId) {
-    const liveMatch = matchSchedule.find(m => m['MatchID'] === matchId && m['MatchStatus'] === 'Live');
-    return !!liveMatch;
-}
-
-// Function to refresh currentLiveMatchId periodically
-async function refreshLiveMatchId() {
+// Helper function to fetch and update match schedule
+async function fetchMatchSchedule() {
     try {
         const response = await axios.get(`${MATCH_SCHEDULE_URL}`);
         eval(response.data);
+    } catch (error) {
+        console.error("Error fetching match schedule:", error);
+    }
+}
+
+// Helper function to fetch live scores
+async function fetchLiveScores() {
+    try {
+        if (currentLiveMatchId) {
+            const response = await axios.get(`${LIVE_SCORES_URL}/${currentLiveMatchId}-Innings1.js`);
+            eval(response.data);
+        }
+    } catch (error) {
+        console.error("Error fetching live scores:", error);
+    }
+}
+
+
+// Function to refresh currentLiveMatchId
+async function refreshLiveMatchId() {
+    try {
+        await fetchMatchSchedule();
         const liveMatch = matchSchedule.find(m => m['MatchStatus'] === 'Live');
         currentLiveMatchId = liveMatch ? liveMatch['MatchID'] : null;
         console.log("Updated currentLiveMatchId:", currentLiveMatchId);
@@ -48,7 +52,7 @@ async function refreshLiveMatchId() {
 }
 
 // Start periodic refresh every 1 minute (60000 ms)
-setInterval(refreshLiveMatchId, 60000);
+setInterval(refreshLiveMatchId, REFRESH_INTERVAL_SECONDS * MILLISECONDS);
 
 // Initial refresh on server start
 refreshLiveMatchId();
@@ -76,38 +80,47 @@ function ongroupstandings(data) {
 }
 
 function onScoring(data) {
-    liveScores = data;
+    liveScores = data['Innings1']['OverHistory'];
 }
 
-// Route for live match.
-// If there is a match ongoing, return commentary info
-// If there is no live match, return upcoming match info
-router.get('/match', validateLiveMatchId, async (req, res) => {
+// HTTP Endpoint: Get live match details
+router.get('/live', async (req, res) => {
     try {
         if (!currentLiveMatchId) {
-            // No live match found, return the upcoming match info
-            const upcomingMatch = matchSchedule.find(m => m['MatchStatus'] === 'UpComing');
-            if (upcomingMatch) {
-                return res.status(200).json({
-                    message: "No live match found. Pls check the upcoming match details",
-                    data: upcomingMatch
-                });
-            } else {
-                return res.status(404).json({ error: "No live or upcoming match found" });
-            }
+            return res.status(404).json({ error: "No live match currently" });
         }
-        const liveMatchResponse = await axios.get(`${LIVE_SCORES_URL}/${currentLiveMatchId}-Innings1.js`);
-        eval(liveMatchResponse.data);
+        await fetchLiveScores();
         res.status(200).json({
+            message: "Live match details",
             data: liveScores
         });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            error: "Internal server error!"
-        });
+        console.error("Error fetching live match details:", error);
+        res.status(500).json({ error: "Internal server error!" });
     }
 });
+
+// HTTP Endpoint: Get upcoming match details
+router.get('/upcoming', async (req, res) => {
+    try {
+        if (!matchSchedule) {
+            await fetchMatchSchedule();
+        }
+        const upcomingMatch = matchSchedule.find(m => m['MatchStatus'] === 'UpComing');
+        if (upcomingMatch) {
+            res.status(200).json({
+                message: "Upcoming match details",
+                data: upcomingMatch
+            });
+        } else {
+            res.status(404).json({ error: "No upcoming match found" });
+        }
+    } catch (error) {
+        console.error("Error fetching upcoming match:", error);
+        res.status(500).json({ error: "Internal server error!" });
+    }
+});
+
 
 // Route for match schedule.
 // Return the list of all matches, including the current ongoing match
@@ -143,5 +156,42 @@ router.get('/points', async (req, res) => {
     }
 });
 
+// WebSocket Route: Push live match events
+function setupWebSocket(server) {
+    const io = new Server(server, {
+        cors: {
+            origin: "*",
+            methods: ["GET", "POST"]
+        }
+    });
 
-module.exports = router;
+    io.on('connection', (socket) => {
+        console.log("Client connected via WebSocket");
+
+        // Periodically send live match updates
+        const intervalId = setInterval(async () => {
+            try {
+                if (!currentLiveMatchId) {
+                    socket.emit('no-live-match', { message: "No live match currently" });
+                } else {
+                    await fetchLiveScores();
+                    socket.emit('live-match-update', { data: liveScores });
+                }
+            } catch (error) {
+                console.error("Error sending live match updates:", error);
+                socket.emit('error', { error: "Failed to fetch live match updates" });
+            }
+        }, 10000); // Send updates every 10 seconds
+
+        // Handle client disconnect
+        socket.on('disconnect', () => {
+            console.log("Client disconnected");
+            clearInterval(intervalId);
+        });
+    });
+
+    console.log("WebSocket server setup complete");
+}
+
+
+module.exports = {router, setupWebSocket};

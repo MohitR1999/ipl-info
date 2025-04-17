@@ -22,7 +22,8 @@ interface ScheduleItemProps {
     groundName: string,
     homeTeamLogo: string,
     awayTeamLogo: string,
-    time: string
+    time: string,
+    ticketsURL : string
 }
 
 const ScheduleItem = ({
@@ -31,8 +32,8 @@ const ScheduleItem = ({
     groundName,
     homeTeamLogo,
     awayTeamLogo,
-    time
-
+    time,
+    ticketsURL
 }: ScheduleItemProps) => {
     const size = 100;
 
@@ -48,7 +49,10 @@ const ScheduleItem = ({
                         {groundName}
                     </div>
                 </TimelineBody>
-                <Button color="cyan">
+                <Button color="cyan" onClick={(e) => {
+                    e.preventDefault();
+                    window.location.href = ticketsURL;
+                }}>
                     Buy Tickets
                     <HiTicket className="ml-2 h-3 w-3" />
                 </Button>
@@ -101,6 +105,7 @@ const Schedule = () => {
                                         homeTeamLogo={item.HomeTeamLogo}
                                         awayTeamLogo={item.AwayTeamLogo}
                                         time={item.MatchTime}
+                                        ticketsURL={item.FBURL}
                                     />
                                 })
                             }

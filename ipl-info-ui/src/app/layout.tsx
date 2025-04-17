@@ -11,8 +11,12 @@ export default function RootLayout({
   return (
     <html>
       <body>
-        <Nav />
-        {children}
+        <>
+          <Nav />
+          <div style={{ paddingTop : '60px' }}>
+            {children}
+          </div>
+        </>
       </body>
     </html>
   );

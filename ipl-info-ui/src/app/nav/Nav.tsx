@@ -30,17 +30,17 @@ const Nav = () => {
         {
             label: 'Home',
             href: '/',
-            icon : () => <HiHome />
+            icon: () => <HiHome />
         },
         {
             label: 'Points table',
             href: '/points',
-            icon : () => <HiTable />
+            icon: () => <HiTable />
         },
         {
             label: 'Match Schedule',
             href: '/schedule',
-            icon : () => <HiCalendar />
+            icon: () => <HiCalendar />
         }
     ]
 
@@ -49,12 +49,19 @@ const Nav = () => {
     return (
         <>
             <Navbar fluid style={{
-                backgroundColor : 'rgba(0, 0, 0, 0)'
+                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                position: 'fixed', // Fixes the Navbar at the top
+                top: 0, // Aligns it to the top
+                left: 0, // Aligns it to the left
+                zIndex: 1, // Ensures it stays above other elements
+                backdropFilter: 'blur(10px)',
+                width: '100%', 
+                WebkitBackdropFilter: 'blur(10px)',
             }}>
                 <Button color="dark" style={{
                     padding: 10,
-                    borderRadius : 300,
-                    backgroundColor : 'rgba(0, 0, 0, 0)'
+                    borderRadius: 300,
+                    backgroundColor: 'rgba(0, 0, 0, 0)'
                 }} onClick={(e) => {
                     e.preventDefault();
                     setIsOpen(!isOpen);
@@ -75,7 +82,7 @@ const Nav = () => {
                                             {
                                                 navItems.map(item => {
                                                     const isActive = pathName === item.href;
-                                                    
+
                                                     return (
                                                         <SidebarItem
                                                             key={item.href}

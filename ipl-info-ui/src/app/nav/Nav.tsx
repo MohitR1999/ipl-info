@@ -53,7 +53,7 @@ const Nav = () => {
                 position: 'fixed', // Fixes the Navbar at the top
                 top: 0, // Aligns it to the top
                 left: 0, // Aligns it to the left
-                zIndex: 1, // Ensures it stays above other elements
+                zIndex: 1000, // Ensures it stays above other elements
                 backdropFilter: 'blur(10px)',
                 width: '100%', 
                 WebkitBackdropFilter: 'blur(10px)',
@@ -68,7 +68,8 @@ const Nav = () => {
                 }}>
                     <HiMenu className="h-6 w-6" />
                 </Button>
-                <Drawer open={isOpen} onClose={handleClose}>
+                <Drawer open={isOpen} onClose={handleClose} style={{
+                }}>
                     <DrawerHeader title="MENU" titleIcon={() => <></>} />
                     <DrawerItems>
                         <Sidebar

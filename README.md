@@ -30,13 +30,11 @@ PORT=5000
 ```
 - Inside the `ipl-info-ui` folder, create a `.env` file with the following content:
 ```
-NEXT_PUBLIC_BACKEND_HOST=<IP address of your local machine on which backend is running>
-NEXT_PUBLIC_BACKEND_PORT=<Port on which backend is running>
+NEXT_PUBLIC_URL=<URL for backend>
 ```
 - An example would be:
 ```
-NEXT_PUBLIC_BACKEND_HOST=192.168.1.15
-NEXT_PUBLIC_BACKEND_PORT=5000
+NEXT_PUBLIC_URL=http://192.168.1.15:5000
 ```
 - Now navigate back to the parent folder, `ipl-info`, and run the following command:
 ```

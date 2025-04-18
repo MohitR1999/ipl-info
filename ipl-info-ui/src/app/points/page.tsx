@@ -84,7 +84,9 @@ const Points = () => {
                     </div>
                     :
                     <div className="flex flex-col justify-center items-center">
-                        <h1 className="text-lg m-8">Points table</h1>
+                        <div className='text-2xl text-gray-400 mb-8'>
+                           Points table
+                        </div>
                         <div className="overflow-x-auto max-w-full flex-1">
                             <Table className="min-w-full">
                                 <TableHead>

@@ -3,27 +3,42 @@
 import { TabItem, Tabs, Card, Button } from 'flowbite-react';
 import { useState, useEffect } from 'react';
 import { HiChartBar, HiCalendar, HiClock, HiLocationMarker } from "react-icons/hi";
-import { MdDashboard } from "react-icons/md";
+import { MdDashboard, MdSportsCricket } from "react-icons/md";
 import Image from "next/image";
 
 
 interface MatchDetailsProps {
   liveMatch: {
     message: string;
+    details : Array<any>;
   },
   upcomingMatch: any
 }
 
+const NoLiveMatchPlaceHolder = () => {
+  return (
+    <div className='p-4 m-4 flex flex-col justify-center items-center'>
+      <MdSportsCricket className='w-25 h-25 mb-10 text-gray-400'/>
+      <div className='text-3xl text-gray-400'>
+        No live match for now
+      </div>
+    </div>
+  );
+}
+
 const MatchDetails = (props: MatchDetailsProps) => {
   const date = new Date(props.upcomingMatch.MATCH_COMMENCE_START_DATE);
+  const isMatchLive = props.liveMatch.message != "No live match currently"
 
   return (
     <div>
       <Tabs aria-label="Default tabs" variant="fullWidth">
-        <TabItem title="Live Match" icon={HiChartBar}>
-          {props.liveMatch.message}
+        <TabItem active title="Live Match" icon={HiChartBar}>
+          {
+            isMatchLive ? <div>Live Match details</div> : <NoLiveMatchPlaceHolder />
+          }
         </TabItem>
-        <TabItem active title="Upcoming Match" icon={HiCalendar}>
+        <TabItem  title="Upcoming Match" icon={HiCalendar}>
           <div className='flex p-5 justify-center'>
             <Card className="flex-1 max-w-md w-full">
               <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -100,30 +115,49 @@ const MatchDetails = (props: MatchDetailsProps) => {
 export default function Home() {
   const [data, setData] = useState([]);
   const [upcomingMatch, setUpcomingMatch] = useState({});
-  const [liveMatch, setLiveMatch] = useState({ message: "" });
+  const [liveMatch, setLiveMatch] = useState({ message: "", details:[]});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUpcomingMatchDetails = async () => {
-      const response = await fetch(`http://${process.env.NEXT_PUBLIC_BACKEND_HOST}:${process.env.NEXT_PUBLIC_BACKEND_PORT}/api/upcoming`);
-      const matchData = await response.json();
-      console.log(matchData);
-      setUpcomingMatch(matchData['data']);
-      setLoading(false);
+      try {
+        const response = await fetch(`http://${process.env.NEXT_PUBLIC_BACKEND_HOST}:${process.env.NEXT_PUBLIC_BACKEND_PORT}/api/upcoming`);
+        const matchData = await response.json();
+        setUpcomingMatch(matchData['data']);
+      } catch (err) {
+        console.log('Error occured');
+        console.log(err);
+        setUpcomingMatch({});
+      }
     }
-
+    
     const fetchLiveMatchDetails = async () => {
-
+      try {
+        const response = await fetch(`http://${process.env.NEXT_PUBLIC_BACKEND_HOST}:${process.env.NEXT_PUBLIC_BACKEND_PORT}/api/live`);
+        const matchData = await response.json();
+        setLiveMatch(matchData);
+        setLoading(false);
+      } catch (error) {
+        console.log('Error occured');
+        console.log(error);
+        setLiveMatch({
+          message: "Failed to fetch live match details, please try later",
+          details : []
+        });
+      }
     }
 
     fetchUpcomingMatchDetails()
+    .catch (err => {
+      console.log(err);
+    })
+    .then (() => {
+     return fetchLiveMatchDetails();
+    })
       .catch(err => {
         console.log(err);
         setLoading(false);
-        setData([]);
-        setUpcomingMatch(false);
-      })
-      ;
+      });
   }, []);
 
 

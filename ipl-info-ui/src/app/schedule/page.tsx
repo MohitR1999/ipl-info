@@ -68,7 +68,7 @@ const Schedule = () => {
 
     useEffect(() => {
         const fetchPointsTable = async () => {
-            const response = await fetch(`http://${process.env.NEXT_PUBLIC_BACKEND_HOST}:${process.env.NEXT_PUBLIC_BACKEND_PORT}/api/schedule`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/schedule`);
             const scheduleData = await response.json();
             console.log(scheduleData['data']);
             setLoading(false);

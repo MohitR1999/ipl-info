@@ -70,7 +70,7 @@ export default function Home() {
   useEffect(() => {
     const fetchUpcomingMatchDetails = async () => {
       try {
-        const response = await fetch(`http://${process.env.NEXT_PUBLIC_BACKEND_HOST}:${process.env.NEXT_PUBLIC_BACKEND_PORT}/api/upcoming`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/upcoming`);
         const matchData = await response.json();
         setUpcomingMatch(matchData['data']);
       } catch (err) {
@@ -82,7 +82,7 @@ export default function Home() {
     
     const fetchLiveMatchDetails = async () => {
       try {
-        const response = await fetch(`http://${process.env.NEXT_PUBLIC_BACKEND_HOST}:${process.env.NEXT_PUBLIC_BACKEND_PORT}/api/live`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/live`);
         const matchData = await response.json();
         setLiveMatch(matchData);
         setLoading(false);

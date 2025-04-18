@@ -59,7 +59,7 @@ const Points = () => {
 
     useEffect(() => {
         const fetchPointsTable = async () => {
-            const response = await fetch(`http://${process.env.NEXT_PUBLIC_BACKEND_HOST}:${process.env.NEXT_PUBLIC_BACKEND_PORT}/api/points`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/points`);
             const pointsData = await response.json();
             console.log(pointsData);
             setLoading(false);

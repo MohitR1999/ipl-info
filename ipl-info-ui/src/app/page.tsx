@@ -32,7 +32,7 @@ const MatchDetails = (props: MatchDetailsProps) => {
 
               <div className='flex items-center'>
                 <p className="text-gray-700 dark:text-gray-400">
-                  {date.getHours() - 12}:{date.getMinutes()} pm IST
+                  {props.upcomingMatch.MatchDateNew}, {date.getHours() - 12}:{date.getMinutes()} pm IST
                 </p>
               </div>
 

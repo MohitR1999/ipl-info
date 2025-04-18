@@ -65,7 +65,8 @@ router.get('/', (req, res) => {
 
 function MatchSchedule(data) {
     matchSchedule = data['Matchsummary'].reduce((accumulator, current) => {
-        if (current['MatchStatus'] == 'Live' || current['MatchStatus'] == 'UpComing') {
+        if ((current['MatchStatus'] == 'Live' || current['MatchStatus'] == 'UpComing') 
+            && (current['HomeTeamName'] != 'TBD' && current['AwayTeamName'] != 'TBD')) {
             accumulator.push(current);
         }
         return accumulator;
@@ -87,12 +88,12 @@ function onScoring(data) {
 router.get('/live', async (req, res) => {
     try {
         if (!currentLiveMatchId) {
-            return res.status(404).json({ error: "No live match currently" });
+            return res.status(404).json({ message: "No live match currently", details: []});
         }
         await fetchLiveScores();
         res.status(200).json({
             message: "Live match details",
-            data: liveScores
+            details: liveScores
         });
     } catch (error) {
         console.error("Error fetching live match details:", error);

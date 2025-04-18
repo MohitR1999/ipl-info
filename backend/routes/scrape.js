@@ -10,7 +10,7 @@ const POINTS_TABLE_URL = `https://ipl-stats-sports-mechanic.s3.ap-south-1.amazon
 
 let matchSchedule = null;
 let pointsTable = {};
-let liveScores = {};
+let liveScores = [];
 let currentLiveMatchId = "";
 
 const REFRESH_INTERVAL_SECONDS = 10;
@@ -88,13 +88,10 @@ function onScoring(data) {
 router.get('/live', async (req, res) => {
     try {
         if (!currentLiveMatchId) {
-            return res.status(404).json({ message: "No live match currently", details: []});
+            return res.status(404).json([]);
         }
         await fetchLiveScores();
-        res.status(200).json({
-            message: "Live match details",
-            details: liveScores
-        });
+        res.status(200).json(liveScores);
     } catch (error) {
         console.error("Error fetching live match details:", error);
         res.status(500).json({ error: "Internal server error!" });
@@ -176,7 +173,7 @@ function setupWebSocket(server) {
                     socket.emit('no-live-match', { message: "No live match currently" });
                 } else {
                     await fetchLiveScores();
-                    socket.emit('live-match-update', { data: liveScores });
+                    socket.emit('live-match-update', { data: liveScores[liveScores.length - 1] });
                 }
             } catch (error) {
                 console.error("Error sending live match updates:", error);

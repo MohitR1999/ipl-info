@@ -10,7 +10,8 @@ import {
     TimelineTime,
     TimelineTitle,
     Spinner,
-    Card
+    Card,
+    Badge
 } from "flowbite-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -20,20 +21,18 @@ interface ScheduleItemProps {
     date: string,
     matchName: string,
     groundName: string,
-    homeTeamLogo: string,
-    awayTeamLogo: string,
     time: string,
-    ticketsURL : string
+    ticketsURL: string,
+    status: string,
 }
 
 const ScheduleItem = ({
     date,
     matchName,
     groundName,
-    homeTeamLogo,
-    awayTeamLogo,
     time,
-    ticketsURL
+    ticketsURL,
+    status
 }: ScheduleItemProps) => {
     const size = 100;
 
@@ -41,8 +40,14 @@ const ScheduleItem = ({
         <TimelineItem>
             <TimelinePoint icon={HiCalendar} />
             <TimelineContent>
-                <TimelineTime>{date}, {time} IST</TimelineTime>
-                <TimelineTitle>{matchName}</TimelineTitle>
+                <TimelineTime>{date}, {time} IST </TimelineTime>
+                <TimelineTitle>{matchName} {status == 'Live' ? <span 
+                style={{ 
+                    color: "red", 
+                    backgroundColor: "#fff", 
+                    padding: '8px', 
+                    borderRadius: '100px' 
+                    }}>Live</span> : <></>}</TimelineTitle>
                 <TimelineBody>
                     <div className="flex mt-1 items-center">
                         <HiLocationMarker className="mr-1 h-5 w-5" />
@@ -102,10 +107,9 @@ const Schedule = () => {
                                         date={item.MatchDateNew}
                                         matchName={item.MatchName}
                                         groundName={item.GroundName}
-                                        homeTeamLogo={item.HomeTeamLogo}
-                                        awayTeamLogo={item.AwayTeamLogo}
                                         time={item.MatchTime}
                                         ticketsURL={item.FBURL}
+                                        status={item.MatchStatus}
                                     />
                                 })
                             }

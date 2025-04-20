@@ -4,6 +4,22 @@ import { Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRo
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
+const Win = () => {
+    return (
+        <span className="border-green-400 border-1 p-0.5 rounded-full">
+            W
+        </span>
+    );
+}
+
+const Loss = () => {
+    return (
+        <span className="border-red-400 border-1 p-0.5 rounded-full">
+            L
+        </span>
+    );
+}
+
 interface TableItemProps {
     name: string;
     position: string;
@@ -42,7 +58,7 @@ const TableItem = ({
                     {performance.split(",").map((s, i) => {
                         return (
                             <div key={i} className="ml-1">
-                                {s == 'L' ? 'L' : 'W'}
+                                {s == 'L' ? <Loss/> : <Win/>}
                             </div>
                         )
                     })}

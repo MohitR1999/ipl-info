@@ -97,9 +97,9 @@ function ongroupstandings(data) {
 
 function onScoring(data) {
     if (data['Innings1']) {
-        liveScores = data['Innings1']['OverHistory'];
+        liveScores = data['Innings1']['OverHistory'].filter(e => e['BallID'] != '0');
     } else if (data['Innings2']) {
-        liveScores = data['Innings2']['OverHistory'];
+        liveScores = data['Innings2']['OverHistory'].filter(e => e['BallID'] != '0');
     } else {
         liveScores = [];
     }
@@ -232,6 +232,17 @@ function setupWebSocket(server) {
             console.log('Received msg: ', msg);
             await fetchMatchSummary(msg.match);
             socket.emit('live-score', matchSummary);
+        })
+
+        socket.on('get-commentary', async (msg) => {
+            await fetchMatchSummary(msg.match);
+            const cursor = msg.cursor;
+            const innings = matchSummary['CurrentInnings'];
+            if (innings) {
+                await fetchLiveScores(msg.match, innings);
+                const scoresToSend = liveScores.filter(score => parseInt(score.BallUniqueID) > parseInt(cursor));
+                socket.emit('live-commentary', scoresToSend && scoresToSend.length > 0 ? scoresToSend : []);
+            }
         })
 
         // Handle client disconnect

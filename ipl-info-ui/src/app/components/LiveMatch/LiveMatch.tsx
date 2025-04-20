@@ -6,7 +6,7 @@ import {
     Tabs,
     Card
 } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Loader from "../Loader/Loader";
 import OverDetail from "../OverDetail/OverDetail";
@@ -98,9 +98,21 @@ const LiveMatch = ({
     const [secondSummary, setSecondSummary] = useState("");
     const [firstInnings, setFirstInnings] = useState("");
     const [secondInnings, setSecondInnings] = useState("");
+    const [currentInnings, setCurrentInnings] = useState("");
+
+    const innings1Ref = useRef<any>([]);
+    const innings2Ref = useRef<any>([]);
+
+    // Sync the refs with the state
+    useEffect(() => {
+        innings1Ref.current = innings1;
+    }, [innings1]);
+
+    useEffect(() => {
+        innings2Ref.current = innings2;
+    }, [innings2]);
 
     const handleLiveScoreUpdate = (msg: any) => {
-        console.log(msg);
         setChasingText(msg['ChasingText'])
         setTossDetails(msg['TossDetails'])
         setFirstInnings(msg['1InningsName']);
@@ -110,11 +122,16 @@ const LiveMatch = ({
     }
 
     const handleLiveCommentaryUpdate = (msg: any) => {
-        switch (msg.InningsNo) {
+        console.log(msg);
+        const innings = msg && msg.length > 0 ? msg[0].InningsNo : ""
+        if (msg && msg.length > 0) {
+            msg.reverse();
+        }
+        switch (innings) {
             case 1: {
                 setInnings1((prevInnings1 : any) => {
                     if (prevInnings1.length === 0 || msg.BallUniqueID !== prevInnings1[0].BallUniqueID) {
-                        return [msg, ...prevInnings1];
+                        return [...msg, ...prevInnings1];
                     }
                     return prevInnings1;
                 });
@@ -123,7 +140,7 @@ const LiveMatch = ({
             case 2: {
                 setInnings2((prevInnings2 : any) => {
                     if (prevInnings2.length === 0 || msg.BallUniqueID !== prevInnings2[0].BallUniqueID) {
-                        return [msg, ...prevInnings2];
+                        return [...msg, ...prevInnings2];
                     }
                     return prevInnings2;
                 });
@@ -166,6 +183,7 @@ const LiveMatch = ({
                 setSecondInnings(data['2InningsName']);
                 setFirstSummary(data['1Summary']);
                 setSecondSummary(data['2Summary']);
+                setCurrentInnings(data['CurrentInnings']);
             } catch (err) {
                 console.log(err);
             }
@@ -196,7 +214,9 @@ const LiveMatch = ({
         socket.on('live-commentary', handleLiveCommentaryUpdate);
         const interval = setInterval(() => {
             socket.emit('get-score', { match: match });
-            socket.emit('get-commentary', { match: match });
+            const currentInningsArray = currentInnings == '1' ? innings1Ref.current : innings2Ref.current;
+            const cursor = currentInningsArray[0].BallUniqueID;
+            socket.emit('get-commentary', { match: match, currentInnings, cursor });
         }, 10 * 1000);
 
         return () => {
@@ -206,7 +226,7 @@ const LiveMatch = ({
             clearInterval(interval);
         }
 
-    }, [])
+    }, [currentInnings])
 
     return (
         <div>
@@ -234,7 +254,7 @@ const LiveMatch = ({
                                     <Timeline>
                                         {
                                             innings1.map((ball: any) => {
-                                                const random = Math.floor(Math.random() * 1000);
+                                                const random = Math.floor(Math.random() * 100000000000000);
                                                 return <OverDetail
                                                     key={`${ball.BallUniqueID}${random}`}
                                                     {...ball}

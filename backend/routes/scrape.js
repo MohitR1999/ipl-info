@@ -12,6 +12,7 @@ let matchSchedule = null;
 let pointsTable = {};
 let liveScores = [];
 let currentLiveMatchId = "";
+let currentLiveMatches = [];
 
 const REFRESH_INTERVAL_SECONDS = 10;
 const MILLISECONDS = 1000;
@@ -40,22 +41,22 @@ async function fetchLiveScores() {
 
 
 // Function to refresh currentLiveMatchId
-async function refreshLiveMatchId() {
+async function refreshLiveMatches() {
     try {
         await fetchMatchSchedule();
-        const liveMatch = matchSchedule.find(m => m['MatchStatus'] === 'Live');
-        currentLiveMatchId = liveMatch ? liveMatch['MatchID'] : null;
-        console.log("Updated currentLiveMatchId:", currentLiveMatchId);
+        const liveMatches = matchSchedule.filter(m => m['MatchStatus'] === 'Live');
+        currentLiveMatches = liveMatches.length > 0 ? liveMatches : [];
+        console.log("Current live matches: ", currentLiveMatches.map(m => m['MatchID']));
     } catch (error) {
         console.error("Error refreshing live match ID:", error);
     }
 }
 
 // Start periodic refresh every 1 minute (60000 ms)
-setInterval(refreshLiveMatchId, REFRESH_INTERVAL_SECONDS * MILLISECONDS);
+setInterval(refreshLiveMatches, REFRESH_INTERVAL_SECONDS * MILLISECONDS);
 
 // Initial refresh on server start
-refreshLiveMatchId();
+refreshLiveMatches();
 
 router.get('/', (req, res) => {
     res.status(200).json({
@@ -83,6 +84,20 @@ function ongroupstandings(data) {
 function onScoring(data) {
     liveScores = data['Innings1']['OverHistory'];
 }
+
+router.get('/live-matches', async (req, res) => {
+    try {
+        await refreshLiveMatches();
+        let status = 404;
+        if (currentLiveMatches.length > 0) {
+            status = 200;
+        } 
+        return res.status(status).json(currentLiveMatches);
+    } catch (error) {
+        console.error("Error fetching live match details:", error);
+        res.status(500).json({ error: "Internal server error!" });
+    }
+});
 
 // HTTP Endpoint: Get live match details
 router.get('/live', async (req, res) => {

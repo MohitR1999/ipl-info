@@ -83,7 +83,13 @@ function ongroupstandings(data) {
 }
 
 function onScoring(data) {
-    liveScores = data['Innings1']['OverHistory'];
+    if (data['Innings1']) {
+        liveScores = data['Innings1']['OverHistory'];
+    } else if (data['Innings2']) {
+        liveScores = data['Innings2']['OverHistory'];
+    } else {
+        liveScores = [];
+    }
 }
 
 router.get('/live-matches', async (req, res) => {

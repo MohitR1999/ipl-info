@@ -28,14 +28,15 @@ async function fetchMatchSchedule() {
 }
 
 // Helper function to fetch live scores
-async function fetchLiveScores() {
+async function fetchLiveScores(matchId, innings) {
     try {
-        if (currentLiveMatchId) {
-            const response = await axios.get(`${LIVE_SCORES_URL}/${currentLiveMatchId}-Innings1.js`);
+        if (matchId) {
+            const response = await axios.get(`${LIVE_SCORES_URL}/${matchId}-Innings${innings}.js`);
             eval(response.data);
         }
     } catch (error) {
         console.error("Error fetching live scores:", error);
+        throw error;
     }
 }
 
@@ -102,14 +103,19 @@ router.get('/live-matches', async (req, res) => {
 // HTTP Endpoint: Get live match details
 router.get('/live', async (req, res) => {
     try {
-        if (!currentLiveMatchId) {
+        const matchId = req.query.matchId;
+        const innings = req.query.innings;
+        if (!matchId && !innings) {
             return res.status(404).json([]);
         }
-        await fetchLiveScores();
+        await fetchLiveScores(matchId, innings);
         res.status(200).json(liveScores);
     } catch (error) {
         console.error("Error fetching live match details:", error);
-        res.status(500).json({ error: "Internal server error!" });
+        if (error.status == 404) 
+            return res.status(404).json([]);
+        else 
+            return res.status(500).json({ error: "Internal server error!" });
     }
 });
 
